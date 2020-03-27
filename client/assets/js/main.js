@@ -1,6 +1,8 @@
 
 window.onload = function () {
 
+
+    //SCENES..
     var SceneA = new Phaser.Class({
 
         Extends: Phaser.Scene,
@@ -13,36 +15,42 @@ window.onload = function () {
         },
         preload: function ()
         {
-
-            this.load.spritesheet('thumbs', 'client/assets/images/spritesheet1.png', { frameWidth: 50, frameHeight: 50 });
-
-            this.load.spritesheet('circles', 'client/assets/images/circles.png', { frameWidth: 120, frameHeight: 120 });
-
-            this.load.on('progress', function (value) {
-                var perc = Math.floor ( value * 100 );
-                console.log ( perc );
-            });
-
+            //...    
         },
-
         create : function () {
 
             this.grid = [];
+
             this.isGameOn = true;
+
+            this.circles = [];
 
             this.isPlayer = false;
 
+            this.createMusicAndSound();
+
             this.createGraphics();
+
+            this.addIndicators();
 
             this.createMyMask();
 
 
         },
+        createMusicAndSound : function () {
+            
+            this.music = this.sound.addAudioSprite('sfx').setVolume (0.8);
+
+        },
         createGraphics : function () {
 
-            var bs = Math.floor ( 116 * _xscale ),
+            var bg = this.add.image ( _gameW/2, _gameH/2, 'bgimage').setScale(_xscale);
+
+            var bgCenter = this.add.image ( _gameW/2, _gameH/2, 'center_img').setScale(_xscale);
+
+            var bs = Math.floor ( 100 * _xscale ),
                 bx = (_gameW - (7 * bs))/2,
-                by = Math.floor ( 10 * _yscale );
+                by = Math.floor ( 100 * _yscale );
 
             var _this = this;
 
@@ -56,12 +64,13 @@ window.onload = function () {
                 var xp = bx + (iy * bs) + bs/2,
                     yp = by + (ix * bs) + bs/2;
 
-                var rect = this.add.image ( xp, yp, 'circles', 2 ).setScale(_xscale);
+                var cbg = this.add.image ( xp, yp, 'circles', 3 ).setScale(_xscale);
 
-                var circ = this.add.circle ( xp, yp, bs*0.4, 0xcecece, 1 );
+                var rect = this.add.image ( xp, yp, 'circles', 0 ).setScale(_xscale).setDepth(999);
+
+                var circ = this.add.circle ( xp, yp, bs*0.383, 0xcecece, 0 );
 
                 //var txt = this.add.text ( xp, yp, ix + ':' +iy, { color : '#000', fontSize : bs*0.18, fontFamily:'Verdana' }).setOrigin(0.5);
-
                 //var txt = this.add.text ( xp, yp, i, { color : '#000', fontSize : bs*0.25, fontFamily:'Verdana' }).setOrigin(0.5);
 
                 this.rects.push (circ);
@@ -71,33 +80,56 @@ window.onload = function () {
                     'y' : yp,
                     'row' : ix,
                     'col' : iy,
-                    'r' : bs*0.4,
+                    'r' : bs*0.383,
                     'isTaken' : false,
                     'resident' : '-'
                 });
 
             }
-            //
+
             for ( var i = 0; i < 7; i++ ) {
 
                 var brect = this.add.rectangle( bx + (i * bs), by, bs, bs*6, 0x33aa33, 0 ).setOrigin(0).setData ('cnt', i).setInteractive();
 
                 brect.on ('pointerover', function () {
-                    this.setFillStyle ( 0x330000, 0.3 );
-                    _this.showDeep (this.getData('cnt'));
+                    if ( !_this.isGameOn ) return;
+
+                    this.setFillStyle (0x00ff00, 0.3)
+                    //_this.showDeep (this.getData('cnt'));
                 });
                 brect.on ('pointerout', function () {
-                    this.setFillStyle ( 0x330000, 0 );
-                    _this.resetDeep();
+                    this.setFillStyle (0x33aa33, 0 )
+                    //_this.resetDeep();
                 });
                 brect.on ('pointerdown', function () {
                     
                     if ( !_this.isGameOn ) return;
 
+                    //this.setFillStyle (0x33aa33, 0 )
+
                     _this.createCircle (this.getData('cnt'));
+                   
+                    //_this.resetDeep();
+
                 });
+
             }
 
+           
+
+        },
+        addIndicators : function () {
+
+            var sX = 465 * _xscale,
+                sY = 45 * _yscale,
+                sW = 350 * _xscale,
+                sH = 80 * _yscale;
+
+            this.self_ind = new PlayerIndicator (this, 'self', sX, sY, sW, sH, 'Nong');
+
+            this.oppo_ind = new PlayerIndicator (this, 'oppo', sX + sW, sY, sW, sH, 'Chalnicol');
+
+             
         },
         createMyMask : function () {
 
@@ -107,60 +139,67 @@ window.onload = function () {
             
             this.shape.beginPath();
 
-            for ( var i in this.grid ) {
-
-                this.shape.fillCircle ( this.grid[i].x, this.grid[i].y, this.grid[i].r );
-            }
+            this.shape.fillRect ( 263, 100, 755, 616 );
 
             this.masker = this.shape.createGeometryMask();
 
         },
         createCircle : function ( numbr ) {
 
+            var _this = this;
+
             var deep = this.getDeep(numbr);
 
-            if ( deep == null ) return;
+            if ( deep == null ) {
 
-            this.isPlayer = !this.isPlayer;
+                console.log ('hey')
+                this.music.play ('error', { volume : 0.3 });
+            }else {
 
-            var bs = Math.floor ( 116 * _xscale );
+                this.isPlayer = !this.isPlayer;
 
-            var xp = this.grid [deep].x,
-                yp = this.grid [deep].y;
+                var playerID = this.isPlayer ? 0 : 1;
 
-            var clr = this.isPlayer ? 0xff0000 : 0x0000ff;
+                var bs = Math.floor ( 116 * _xscale );
 
-            var frame = this.isPlayer ? 0 : 1;
+                var xp = this.grid [deep].x,
+                    yp = this.grid [deep].y;
 
-            //var circ = this.add.circle ( xp, yp - _gameH, bs*0.4, clr, 1 );
+                var clr = this.isPlayer ? 0xff0000 : 0x0000ff;
 
-            var circ = this.add.image ( xp, yp - _gameH, 'circles', frame ).setScale (_xscale );
+                var frame = this.isPlayer ? 1 : 2;
 
+                var circ = this.add.image ( xp, _gameH *0.08, 'circles', frame ).setScale (_xscale );
 
-            this.tweens.add ({
-                targets : circ,
-                y : yp,
-                duration : 300,
-                ease : 'Bounce',
-                easeParams : [0.8, 1]
-            });
+                this.tweens.add ({
+                    targets : circ,
+                    y : yp,
+                    duration : 300,
+                    ease : 'Bounce',
+                    easeParams : [0.9, 1],
+                    onComplete : function () {
+                        //...
+                    }
+                });
 
-            circ.setMask(this.masker)
+                //circ.setMask(this.masker);
+                this.music.play ('clickb', { volume : 0.8 });
 
-            var playerID = this.isPlayer ? 0 : 1;
+                this.circles.push ( circ );
 
-            this.grid [deep].isTaken  = true;
-            this.grid [deep].resident  = playerID;
+                this.grid [deep].isTaken  = true;
+                this.grid [deep].resident  = playerID;
 
-            this.checkWin ( playerID, deep )
-            
+                this.checkWin ( playerID, deep );
+
+        }
 
         },
         showDeep : function ( numbr ) {
 
             var deep = this.getDeep ( numbr );
 
-            if ( deep != null ) this.rects [deep].setFillStyle (0x33ff00, 1);
+            if ( deep != null ) this.rects [deep].setFillStyle (0x00ff00, 1);
 
         },
         resetDeep : function () {
@@ -192,8 +231,43 @@ window.onload = function () {
             var forStr = this.checkForwardSlash (pos);
 
             if ( verStr.includes (tempStr) || horStr.includes (tempStr) || bacStr.includes (tempStr) || forStr.includes (tempStr) ) 
-                this.isGameOn = false;
+                this.endGame ();
+        },
+        endGame : function () {
+
+            var _this = this;
+
+            this.isGameOn = false;
+            this.music.play ('harp');
+
+            this.showEndImage();
+
+        },
+        showEndImage : function () {
+
+            var _this = this;
+
+            var endImage = this.add.image ( _gameW/2, _gameH/2, 'pwin').setScale(_xscale).setInteractive().setDepth(999);
+            endImage.on ('pointerdown', function () {
+                //this.destroy();
+
+                //_this.resetGame();
+            });
+
+        },
+        resetGame : function () {
             
+            this.music.play ('beep', { volume : 0.5});
+
+            for ( var i in this.circles ) {
+                this.circles [i].destroy();
+            }
+            for ( var j in this.grid ) {
+                this.grid [j].isTaken = false;
+                this.grid [j].resident = '-';
+            }
+            this.isGameOn = true;
+
         },
         checkVertical : function ( gp ) {
 
@@ -298,294 +372,99 @@ window.onload = function () {
         }
         
     });
-    
-    var SceneB = new Phaser.Class({
-    
+
+    var Intro = new Phaser.Class({
+
         Extends: Phaser.Scene,
     
         initialize:
     
-        function SceneB ()
+        function Intro ()
         {
-            Phaser.Scene.call(this, { key: 'SceneB' });
+            Phaser.Scene.call(this, { key: 'Intro' });
         },
-        init : function ( data ) {
-            
-            this.grid = [];
-            this.ways = [];
-            this.hand = [];
-
-            this.cards = {};
-
-            this.cardActive = '';
-    
-        },
-        preload: function ()
+        preload : function () 
         {
-            //...
+
+            this.load.audioSprite('sfx', 'client/assets/sfx/fx_mixdown.json', [
+                'client/assets/sfx/sfx.ogg',
+                'client/assets/sfx/sfx.mp3'
+            ]);
+            this.load.audio ('bgsound', [ 'client/assets/sfx/drumsofwar.ogg', 'client/assets/sfx/drumsofwar.mp3'] );
+
+            this.load.image ('bgimage', 'client/assets/images/bg.png');
+
+            this.load.image ('title', 'client/assets/images/title.png');
+
+            this.load.image ('center_img', 'client/assets/images/center.png');
+
+            this.load.image ('pwin', 'client/assets/images/prompt_win.png');
+
+            this.load.image ('indicator_bg', 'client/assets/images/indicator_bg.png');
+
+            this.load.image ('bg_img1', 'client/assets/images/scenea_bg.png');
+            
+
+            this.load.spritesheet('indicator_turn', 'client/assets/images/indicator_turn.png', { frameWidth: 53, frameHeight: 53 });
+
+            this.load.spritesheet('thumbs', 'client/assets/images/spritesheet1.png', { frameWidth: 50, frameHeight: 50 });
+
+            this.load.spritesheet('menu_intro', 'client/assets/images/menu_intro.png', { frameWidth: 260, frameHeight: 260 });
+
+            this.load.spritesheet('circles', 'client/assets/images/circles.png', { frameWidth: 100, frameHeight: 100 });
+
+            this.load.on('progress', function (value) {
+                var perc = Math.floor ( value * 100 );
+                //console.log ( perc );
+            });
+
         },
-        create: function ()
-        {
-            this.initGraphicsPlacements ();
+        create : function () {
 
-            this.initCards ();      
-         
-        },
-        initPlayers : function () {
-    
-            var p1 = new Player ('self', 'Charlou');
-            var p2 = new Player ('oppo', 'Charlie');
-    
-            this.player['self'] = p1;
-            this.player['oppo'] = p2;
-            
-        },
-        initGraphicsPlacements: function () {
-    
-            var cW = config.width * 0.28,
-                cH = config.height * 0.2,
-                cGx = cW * 0.32,
-                cGy = cH * 0.22,
-                csW = (cGx * 4) + cW,
-                csX = ( config.width - csW )/2 + cW/2,
-                //csX = config.width * 0.12 + (cW/2),
-                csY = config.height * 0.15 + (cH/2);
-            
-            for ( var i=0; i<15; i++) {
-    
-                var x = Math.floor ( i/5 ),
-                    y = i%5;
-    
-                var cX = csX + y * cGx,
-                    cY = csY + ( x * ( cH + cGy ) );
-    
-                this.grid.push ({
-                    'x' : cX,
-                    'y' : cY,
-                });
-    
-            }
-    
-            this.cardW = cW;
-            this.cardH = cH;
+            var bg = this.add.image ( _gameW/2, _gameH/2, 'bgimage').setScale(_xscale);
 
-            //...
-        }, 
-        initCards : function () {
-    
-            var _this = this;
-            
-            var cardValues = ['','2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] ;
+            var bg2 = this.add.image ( _gameW/2, _gameH/2, 'bg_img1').setScale(_xscale);
 
-            var cW = this.cardW,
-                cH = this.cardH,
-                cG = cW * 0.15,
-                cT = (cG * 12) + cW
-                cX = (config.width - cT)/2 + (cW/2),
-                cY = config.height * 0.75 + ( cH/2);
-    
-            var order = this.shuffleCards();
-    
-            for ( var i=0; i<13; i++) {
-    
-                var cnt = order [i];
-    
-                var clr = Math.floor ( order[i]/ 26 );
-    
-                var tpe = Math.floor ( order[i]/ 13 );
+            var title = this.add.image ( _gameW/2, _gameH/2, 'title').setScale(_xscale);
 
-                var trueVal = ( order[i] % 13 == 0 ) ? 13 : order[i] % 13;
-    
-                var card = new Card ( this, 'card' + i ,  config.width/2, config.height/2, this.cardW, this.cardH, cnt, clr, tpe, trueVal, i, cardValues[trueVal] );
-    
-            }
 
-        }, 
-        initControls :  function () {
+            //init menu...
+            var strX = 380 * _xscale,
+                strY = 410 * _yscale,
+                strS = 260 * _xscale;
 
-            var rW = config.width,
-                rH = config.height *0.08,
-                rX = config.width/2,
-                rY = config.height - rH/2;
-
-            var rect = this.add.rectangle ( rX, rY, rW, rH, 0xcccccc, 1 );
-
-            var graphics = this.add.graphics();
-            
-           
-            graphics.lineStyle ( 1, 0x9c9c9c );
-            graphics.beginPath();
-            graphics.moveTo( 0, config.height*0.94);
-            graphics.lineTo( config.width, config.height*0.94);
-            graphics.strokePath();
-               
-            graphics.lineStyle ( 1, 0xdedede );
-            graphics.beginPath();
-            graphics.moveTo( 0, config.height*0.941);
-            graphics.lineTo( config.width, config.height*0.941);
-            graphics.strokePath();
-
-            var tpH = rH * 0.4,
-                tpX = rX,
-                tpY = rY - (rH/2) - (tpH/2);
-
-            var controlTxtConfig = {
-                color : '#ff3300',
-                fontSize : tpH * 0.5,
-                fontStyle : 'bold',
-                fontFamily : "Trebuchet MS",
-            };
-            
-            this.txtControl = this.add.text ( tpX, tpY, '', controlTxtConfig ).setOrigin ( 0.5);
-
-            var txtPrompt = [ 'Auto Arrange', 'Sort Levels', 'Switch Mid and Bottom Levels', 'Ready', 'Exit Game' ];
-
-            var bCnt = 5,
-                bS = rH * 0.7,
-                bG = config.width *0.02,
-                bT = bCnt * ( bS + bG ) - bG,
-                bX = (config.width - bT) /2 + (bS/2),
-                bY = rY;
-            
             var _this = this;
 
-            for ( var i = 0; i < bCnt; i++ ) {
+            for ( var i = 0; i < 3; i++ ) {
 
-                var cnt = new ControlButton ( this, 'cnt' + i, bX + i * ( bS + bG), bY, bS, i ).setAlpha ( 0 );
+                var menue = this.add.image ( strX + i*(strS), strY + _gameW/2, 'menu_intro', i*2 ).setData ('frame', i).setInteractive();
 
-                cnt.on ( 'pointerdown', function () {
-
-                    this.change ( 0xff9999 )
-                    console.log ( this.id );
-
-                    switch ( this.id  ) {
-                        case 'cnt0' : 
-                        break;
-                        case 'cnt1' : 
-                            _this.sortLevels();
-                        break;
-                        case 'cnt2' : 
-                            _this.switchLowCards();
-                        break;
-                        case 'cnt3' : 
-                        break;
-                        case 'cnt4' : 
-                        break;
-                        
-                    }
+                menue.on ('pointerover', function () {
+                    this.setFrame ( (this.getData('frame') * 2) + 1 );
                 });
-                cnt.on ( 'pointerover', function () {
-                    this.change ( 0xc3c3c3 );
-
-                    _this.txtControl.text = '- ' + txtPrompt [ this.frame ] + ' -';
+                menue.on ('pointerout', function () {
+                    this.setFrame ( this.getData('frame') * 2 );
                 });
-                cnt.on ( 'pointerout', function () {
-                    this.change ( this.bgColor );
-                    
-                });
-                cnt.on ('pointerup', function () {
-                    this.change ( this.bgColor );
+                menue.on('pointerdown', function () {
+                    //console.log ('clicked')
+                    _this.scene.start('sceneA')
                 });
 
                 this.tweens.add ({
-                    targets : cnt,
-                    alpha : 1,
-                    duration : 800,
+                    targets : menue,
+                    y : strY ,
+                    duration : 400,
                     ease : 'Power2',
-                    delay : 1000
+                    delay : i * 50
                 });
 
-
             }
 
-        },
-        initIndicators : function () {
-            //var trect = this.add.rectangle ( 0, 0, tW, tH, 0xcccccc, 1 ).setOrigin(0);
-
-
-            var pW = config.width * 0.95,
-                pH = config.height *0.08,
-                pX = config.width/2,
-                pY = config.height *0.02;
-
-
-            var pInd = new PlayerIndicator ( this, 'self', pX, pY + pH/2, pW, pH, "Chalnicol" );
-
-
-            //way
-            var xs = config.width *0.25,
-                ys = config.height * 0.22,
-                r = config.width*0.1;
-
-            var wayInd = new WayIndicator ( this, 'wind', xs, ys, r*2 );
-
-            this.wind = wayInd;
-
-            //
-
-        },
-        shuffleCards : function () {
-    
-            var tmp_arr = [];
-            for ( var i = 0; i < 52; i++ ) {
-                tmp_arr.push (i);
-            };
-    
-            var fin_arr = [];
-    
-            while ( tmp_arr.length > 0) {
-    
-                var rnd = Math.floor ( Math.random() * tmp_arr.length );
-    
-                fin_arr.push ( tmp_arr[rnd] );
-    
-                tmp_arr.splice ( rnd, 1 );
-    
-            }
-    
-            return fin_arr;
-    
-        },
-        moveCards: function () {
-
-            for ( var i = 0; i < 13; i++) {
-
-                var card = this.cards [ 'card' + ( 12 - i) ];
-
-                card.index = i;
-
-                this.tweens.add ( {
-
-                    targets : card,
-                    x : this.grid [i + 2].x,
-                    y : this.grid [i + 2].y,
-                    duration : 200,
-                    ease : 'Power2',
-                    delay : i * 50,
-                    onComplete : function () {
-                        
-                        var depth = this.targets[0].index;
-
-                        this.targets[0].flipOpen();
-
-                        this.targets[0].setDepth (depth) 
-
-                    }
-                });
-
-                this.hand.push ( card.id );
-
-            }
-
-            //this.evaluateHand ();
-
+            
         }
-       
-    
     });
-    
 
-    //..PlayerIndicators...
+    //CLASSES
     var PlayerIndicator = new Phaser.Class({
     
         Extends: Phaser.GameObjects.Container,
@@ -596,7 +475,7 @@ window.onload = function () {
         {
             Phaser.GameObjects.Container.call(this, scene)
     
-            this.setPosition(x, y).setSize( width, height);
+            this.setPosition(x, y).setSize(width, height);
     
             this.id = id;
             this.x = x;
@@ -605,91 +484,74 @@ window.onload = function () {
             this.height = height;
             this.name = name;
     
-            this.shape = scene.add.graphics ({ lineStyle : { color: 0xa4a4a4, width:1 } });
-            
-            //this.shape.fillStyle ( 0x9c9c9c, 0.5 );
-            //this.shape.fillRoundedRect ( -width/2, -height/2 + 3, width, height, height*0.1);
+            this.top = -height/2, 
+            this.left = -width/2;
 
-            this.shape.fillStyle ( 0xf3f3f3, 1 );
-            this.shape.fillRoundedRect ( -width/2, -height/2, width, height, height*0.1);
-            this.shape.strokeRoundedRect ( -width/2, -height/2, width, height, height*0.1);
-    
-            var top = -height/2, 
-                left = -width/2;
+            this.rect = scene.add.rectangle (0, 0,width, height, 0xffffff, 0.1 )
 
-            var cx = left + width *0.08,
-                cy = top + height/2,
-                r = height *0.37;
+            this.bg = scene.add.image (0, 0, 'indicator_bg');
 
-    
-            this.circ = scene.add.circle ( cx, cy, r, 0xcccccc, 1 ).setStrokeStyle(1, 0xa4a4a4 );
+            this.turn_ind = scene.add.image ( -width*0.38, 0, 'indicator_turn', );
 
-            var bankTxtConfig = { 
-                fontFamily: 'Trebuchet MS', 
-                fontSize: Math.floor( r*2*0.7 ), 
-                fontStyle: 'bold',
+            var nameTxt = { 
+                fontFamily: 'Poppins', 
+                fontSize: this.height *0.25, 
                 color: '#f3f3f3' 
             };
 
-            this.text = scene.add.text ( cx, cy, 'P', bankTxtConfig ).setOrigin(0.5);
-            //this.text.setStroke('#9c9c9c', 5 );
-            this.text.setShadow( 2, 2, '#9c9c9c', 5, true, true );
+            this.name_txt = scene.add.text ( -width*.29, 0, name, nameTxt ).setOrigin(0, 0.5);
+            //this.text.setShadow( 2, 2, '#9c9c9c', 5, true, true );
 
-            var txtConfig = { 
-                fontFamily: 'Trebuchet MS', 
-                fontSize: Math.floor( height * 0.33 ), 
-                fontStyle: 'bold',
-                color: '#339966' 
+            var timeTxt = { 
+                fontFamily: 'Poppins', 
+                fontSize: this.height *0.2, 
+                color: '#f3f3f3' 
             };
-    
-            var tX = left + (width * 0.16),
-                tY = top + (height * 0.15); 
-    
-            this.texta = scene.add.text ( tX, tY, name, txtConfig ).setOrigin(0);
-            
-            //money
 
-            var moneyTxtConfig = { 
-                fontFamily: 'Trebuchet MS', 
-                fontSize: Math.floor( height * 0.25 ), 
-                fontStyle: 'bold',
-                color: '#6a6a6a' 
+            this.time_txt = scene.add.text ( width*.41, height*0.02, '15s', timeTxt ).setOrigin(1, 0);
+
+            var winTxt = { 
+                fontFamily: 'Poppins', 
+                fontSize: this.height *0.2, 
+                color: '#f3f3f3' 
             };
-            
-            var tXa = left + (width * 0.16),
-                tYa = top + (height * 0.55); 
 
-            this.textb = scene.add.text ( tXa, tYa, 'Bank : P20,000', moneyTxtConfig ).setOrigin(0);
-    
-            this.add ([ this.shape, this.circ, this.text, this.texta,  this.textb ]); // add elements to this container..
-    
-            scene.children.add ( this ); //add to scene...
+            this.win_txt = scene.add.text ( width*.41 , -height*0.3, '0 wins', winTxt ).setOrigin(1, 0);
+            
+            //add elements fo container..
+            this.add ([ this.rect, this.bg, this.turn_ind, this.name_txt, this.win_txt, this.time_txt ]);
+
+            //add to scene...
+            scene.children.add ( this ); 
             
         }
     
     });
     
+    //get game width & height..
     var parentDiv = document.getElementById('game_div');
 
+    var _gameW = parentDiv.clientWidth,
+        _gameH = parentDiv.clientHeight,
+        _xscale = _gameW/1280,
+        _yscale = _gameH/720;
+
+    console.log ( _gameW, _gameH );
+
+    //game config...
     var config = {
 
         type: Phaser.AUTO,
-        width: parentDiv.clientWidth,
-        height: parentDiv.clientHeight,
+        width: _gameW,
+        height: _gameH,
         backgroundColor: '#dedede',
         audio: {
             disableWebAudio: false
         },
         parent:'game_div',
-        scene: [ SceneA ]
+        scene: [ Intro, SceneA ]
 
     };
-
-    var _gameW = config.width,
-        _gameH = config.height;
-
-    var _xscale = config.width/1280,
-        _yscale = config.height/720;
 
     var game = new Phaser.Game(config);
 
