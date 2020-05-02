@@ -557,7 +557,7 @@ window.onload = function () {
             var txt = this.add.text ( _gameW/2, _gameH * 0.485, txt , txtConfig ).setOrigin(0.5);
 
 
-            var btns = this.add.sprite ( _gameW/2, _gameH * 0.57, 'prompt_btns', 0 ).setInteractive ();
+            var btns = this.add.sprite ( _gameW/2, _gameH * 0.57, 'prompt_btns', 0 ).setScale(_scale).setInteractive ();
 
             btns.on('pointerover', function () {
                 this.setFrame (1);
