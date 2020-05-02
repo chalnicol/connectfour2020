@@ -1071,7 +1071,7 @@ window.onload = function () {
                 bx = 1052 * _scale,
                 by = 135 * _scale;
 
-            var buts = ['close', 'emoji', 'musi', 'sound'];
+            var buts = ['close', 'sound', 'music', 'emoji'];
 
             for ( var i in buts ) {
                 
