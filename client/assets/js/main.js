@@ -1248,7 +1248,7 @@ window.onload = function () {
 
             this.promptContainer = this.add.container (0, _gameH).setDepth(999);
 
-            var img = this.add.image (0, 0, 'prompt_sm').setScale(_scale).setInteractive().setOrigin (0);
+            var img = this.add.image (0, 0, 'prompt_sm').setScale(_scale).setOrigin (0);
 
             var txtConfig = {
                 color : '#6a6a6a',
