@@ -169,7 +169,7 @@ window.onload = function () {
 
             this.load.on('progress', function (value) {
                 var perc = Math.floor ( value * 100 );
-                this.scene.loadTxt.text = 'Loading Files ' + perc + '%'; 
+                this.scene.loadTxt.text = 'Loading Files : ' + perc + '%'; 
             });
 
         },
@@ -1054,7 +1054,7 @@ window.onload = function () {
             
                 var win_txt = this.add.text ( sW * 0.92, sH * 0.18, 'Wins : 0', txtConfig ).setFontSize( sH*0.22 ).setOrigin(1, 0).setName('winTxt');
                 
-                var tim_txt = this.add.text ( sW * 0.92, sH * 0.6, '60s', txtConfig ).setFontSize( sH*0.22 ).setOrigin(1, 0).setName('timeTxt');
+                var tim_txt = this.add.text ( sW * 0.92, sH * 0.6, '_', txtConfig ).setFontSize( sH*0.22 ).setOrigin(1, 0).setName('timeTxt');
 
               
                 miniContainer.add ([ indBG, turn_ind, name_txt, tim_txt, win_txt ]);
