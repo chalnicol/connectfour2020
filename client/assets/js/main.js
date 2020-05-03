@@ -132,9 +132,9 @@ window.onload = function () {
                 'client/assets/sfx/sfx.ogg',
                 'client/assets/sfx/sfx.mp3'
             ]);
-            this.load.audio ('bgsound', [ 'client/assets/sfx/drumsofwar.ogg', 'client/assets/sfx/drumsofwar.mp3'] );
+            this.load.audio ('bgsound2', [ 'client/assets/sfx/bgsound.ogg', 'client/assets/sfx/bgsound.mp3'] );
 
-            this.load.audio ('bgsound2', [ 'client/assets/sfx/siege.ogg', 'client/assets/sfx/siege.mp3'] );
+            this.load.audio ('bgsound', [ 'client/assets/sfx/bgsound2.ogg', 'client/assets/sfx/bgsound2.mp3'] );
 
             this.load.image ('bgimage', 'client/assets/images/bg.png');
 
@@ -848,7 +848,7 @@ window.onload = function () {
 
                 //console.log (data);
 
-                _this.music.play ('clickb', { volume: 0.8})
+                _this.playSound ('clickb', 0.8 );
 
                 _this.createCircle ( data );
                 
@@ -857,13 +857,11 @@ window.onload = function () {
             });
             socket.on ('opponentLeft', function ( data ) {
 
-                setTimeout(() => {
+                _this.removePrompt ();
 
-                    _this.music.play ('warp');
+                _this.playSound ('warp');
 
-                    _this.showPromptSmall ('Opponent has left the game.' );
-
-                }, 500 );
+                _this.showPromptSmall ('Opponent has left the game.' );
                 
             });
             socket.on("resetGame", function () {
@@ -886,6 +884,8 @@ window.onload = function () {
             
             this.bgsound = this.sound.add ('bgsound2').setVolume(0.2).setLoop(true);
             this.bgsound.play();
+
+            this.soundOn = true;
 
             this.music = this.sound.addAudioSprite('sfx');
             
@@ -966,7 +966,7 @@ window.onload = function () {
 
                     if ( deep != null ) {
 
-                        _this.music.play ('clickb', { volume : 0.8 });
+                        _this.playSound ('clickb', 0.8 );
 
                         _this.createCircle ( deep );
 
@@ -977,7 +977,7 @@ window.onload = function () {
 
                     }else {
 
-                        _this.music.play ('error', { volume : 0.3 });
+                        _this.playSound ('error', 0.3 );
 
                     }
                     
@@ -996,6 +996,9 @@ window.onload = function () {
 
             var isAi = false;
 
+            var clr0 = 0, clr1 = 1;
+
+
             if ( this.initData.isSinglePlayer ) {
 
                 var playerNames = ['Rose™', 'Jack™', 'Mandy™', 'Rei™', 'Mika™', 'Ely™', 'Marlou™', 'Spencer™', 'Denver™' ];
@@ -1006,20 +1009,20 @@ window.onload = function () {
 
             }else {
 
-                oppoName = this.initData.players.oppo.name;
+                clr0 = this.initData.players.self.clr;
+
+                clr1 = clr0 == 0 ? 1 : 0;
+
+                oppoName = this.initData.players.oppo.name;  
                 
             }
             
-            
             this.playerArr = [
-                { 'id' : 'self', 'name' : selfName, 'w' : 0, 'l': 0,  'ai':false },
-                { 'id' : 'oppo', 'name' : oppoName, 'w' : 0, 'l' : 0, 'ai':isAi }
+                { 'id' : 'self', 'name' : selfName, 'w' : 0, 'chipClr': clr0, 'ai':false },
+                { 'id' : 'oppo', 'name' : oppoName, 'w' : 0, 'chipClr': clr1, 'ai':isAi }
             ];
             
-            
-
-            
-
+            //..
         },
         createIndicators : function () {
 
@@ -1029,9 +1032,9 @@ window.onload = function () {
 
             var sW = 350 * _scale,
                 sH = 80 * _scale;
-                sS = sW * 0.05, 
+                sS = sW * 0.02, 
                 sX = (_gameW - (2 * ( sW + sS ) - sS) )/2,
-                sY = 8 * _scale;
+                sY = 5 * _scale;
 
             var txtConfig = { fontFamily: 'Poppins', color: '#f3f3f3', fontSize : sH * 0.25 };
 
@@ -1066,16 +1069,23 @@ window.onload = function () {
         },
         createControls : function () {
 
+            var _this = this;
+
+            this.contBtns = [];
+
             var bh = 70 * _scale, 
                 bs = bh * 0.08,
                 bx = 1052 * _scale,
                 by = 135 * _scale;
 
-            var buts = ['close', 'sound', 'music', 'emoji'];
+            var buts = ['close', 'sound', 'music' ];
 
             for ( var i in buts ) {
                 
-                var img = this.add.sprite ( bx, by + i * ( bh + bs), 'cntrl_btns', 0 ).setData ('id', buts[i] ).setScale(_scale).setInteractive();
+
+                var miniContainer = this.add.container (bx + (300 *_scale), by + i * ( bh + bs) );
+
+                var img = this.add.image ( 0, 0, 'cntrl_btns', 0 ).setData ('id', buts[i] ).setScale(_scale).setInteractive();
                 
                 img.on('pointerover', function () {
                     this.setFrame (1);
@@ -1088,9 +1098,22 @@ window.onload = function () {
                 });
                 img.on('pointerdown', function () {
                     //console.log ( this.getData ('id') );
+                    _this.controlBtnsClick ( this.getData('id') );
                 });
                 
-                var emb = this.add.sprite ( bx, by + i * ( bh + bs), 'thumbs', i ).setScale(_scale);
+                var emb = this.add.image ( 0, 0, 'thumbs', i ).setScale(_scale);
+
+                miniContainer.add ([img, emb]);
+
+                this.contBtns.push (miniContainer);
+
+                this.tweens.add ({
+                    targets : miniContainer,
+                    x : bx,
+                    duration : 300,
+                    ease : 'Power2',
+                    delay : i * 100
+                });
 
             }
 
@@ -1117,9 +1140,9 @@ window.onload = function () {
             var xp = this.grid [deep].x,
                 yp = this.grid [deep].y;
 
-            var frame = this.turn == 0 ? 1 : 2;
+            var frame = this.playerArr [ this.turn ].chipClr;
 
-            var circ = this.add.image ( xp, _gameH *0.08, 'circles', frame ).setScale (_scale );
+            var circ = this.add.image ( xp, _gameH *0.08, 'circles', frame + 1 ).setScale (_scale );
 
             this.tweens.add ({
                 targets : circ,
@@ -1140,7 +1163,9 @@ window.onload = function () {
         },
         initGame : function () {
 
-            this.music.play ('move');
+            this.promptLeave = false;
+
+            this.playSound ('move');
 
             this. makeTurn ( this.turn );
 
@@ -1207,13 +1232,11 @@ window.onload = function () {
 
             this.indicators [this.turn].getByName ('winTxt').text = 'Wins : ' + this.playerArr[this.turn].w;
 
-            var txt = ( this.turn == 0 ) ? 'Congratulations! You Win' : 'Sorry, You Lose';
-
             var _this = this;
 
             setTimeout(() => {
-                _this.music.play ('warp');
-                _this.showPrompt (txt);
+                _this.playSound ('warp');
+                _this.showWinPrompt ();
             }, 500 );
             
         },
@@ -1228,7 +1251,7 @@ window.onload = function () {
             var img = this.add.image (0, 0, 'prompt_sm').setScale(_scale).setInteractive().setOrigin (0);
 
             var txtConfig = {
-                color : '#000',
+                color : '#6a6a6a',
                 fontSize : 25 * _scale,
                 fontFamily : 'Oswald'
             }
@@ -1241,12 +1264,12 @@ window.onload = function () {
                 targets : this.promptContainer,
                 y : 0,
                 duration : 500,
-                easeParams : [1, 0.5],
+                easeParams : [1, 0.8],
                 ease : 'Elastic'
             });
 
         },
-        showPrompt : function ( txt ) {
+        showPrompt : function ( txt, arr ) {
 
             var _this = this;
 
@@ -1254,79 +1277,80 @@ window.onload = function () {
 
             this.promptContainer = this.add.container (0, _gameH).setDepth(999);
 
-            var img = this.add.image (0, 0, 'prompt_xl').setScale(_scale).setInteractive().setOrigin (0);
+            var img = this.add.image (0, 0, 'prompt_xl').setScale(_scale).setOrigin (0);
 
             var txtConfig = {
-                color : '#000',
-                fontSize : 20 * _scale,
+                color : '#6a6a6a',
+                fontSize : 22 * _scale,
                 fontFamily : 'Oswald'
             }
 
-            var txt = this.add.text ( _gameW/2, _gameH * 0.485, txt , txtConfig ).setOrigin(0.5);
+            var txt = this.add.text ( _gameW/2, 350*_scale, txt , txtConfig ).setOrigin(0.5);
 
             this.promptContainer.add ([img, txt])
-
 
             var bw = 155 * _scale,
                 bs = bw * 0.05,
                 bx = (_gameW - (2 * (bw+bs) - bs ) )/2 + bw/2,
                 by = _gameH * 0.57;
 
-            for ( var i = 0; i < 2; i++ ) {
+            for ( var i = 0; i < arr.length ; i++ ) {
 
-                var btns = this.add.sprite ( bx + i *(bw + bs), by, 'prompt_btns2', i*2 ).setData('frame', i*2).setScale(_scale).setInteractive ();
+                var btns = this.add.sprite ( bx + i *(bw + bs), by, 'prompt_btns2', 0 ).setData( 'id', arr[i].id ).setScale(_scale).setInteractive ();
 
                 btns.on('pointerover', function () {
-                    this.setFrame ( this.getData('frame') + 1);
+                    this.setFrame ( 1 );
                 });
                 btns.on('pointerout', function () {
-                    this.setFrame ( this.getData('frame'));
+                    this.setFrame ( 0 );
                 });
                 btns.on('pointerup', function () {
-                    this.setFrame ( this.getData('frame'));
+                    this.setFrame ( 0 );
                 });
                 btns.on('pointerdown', function () {
                     
-                    _this.music.play ('beep', { volume : 0.5 });
-
-                    if ( this.getData('frame') == 0 ) {
-
-                        if ( !_this.initData.isSinglePlayer ) {
-
-                            socket.emit ('rematchRequest');
-                            
-                            _this.removePrompt ();
-                            
-                            _this.showPromptSmall ('Waiting for confirmation..');
-
-
-                        }else {
-
-                            _this.resetGame ();
-                        }
-                        
-                    }else {
-                        
-                        if ( !_this.initData.isSinglePlayer ) socket.emit ('leaveGame');
-
-                        _this.leaveGame ();
-
-                    }
-                    
+                    _this.playSound ('beep');
+                    _this.promptBtnsClick ( this.getData('id') );
+                   
                 });
 
-                this.promptContainer.add ( btns );
+                var txts = this.add.text ( bx + i *(bw + bs), by, arr[i].value, { color:'#6a6a6a', fontFamily:'Oswald', fontSize: 20*_scale } ).setOrigin (0.5);
 
+                this.promptContainer.add ( [btns, txts] );
             }
             
             this.tweens.add ({
                 targets : this.promptContainer,
                 y : 0,
                 duration : 500,
-                easeParams : [1, 0.5],
+                easeParams : [1, 0.8],
                 ease : 'Elastic'
             });
 
+
+        },
+        showWinPrompt : function () {
+
+            var txt = ( this.turn == 0 ) ? 'Congratulations! You Win' : 'Sorry, You Lose';
+
+            var btnArr = [
+                {id:'playagain', value: 'Play Again'},
+                {id:'exit', value: 'Exit'},
+            ];
+
+            this.showPrompt ( txt, btnArr );
+
+        },
+        showLeavePrompt : function () {
+
+            var btnsArr = [
+                {id:'leave', value:'Confirm'},
+                {id:'cancel', value:'Cancel'}
+            ]
+
+            this.showPrompt ('Are you sure you want to leave?', btnsArr );
+
+            this.promptLeave = true;
 
         },
         removePrompt : function () {
@@ -1335,6 +1359,100 @@ window.onload = function () {
 
             this.isPrompted = false;
             this.promptContainer.destroy();
+        },
+        promptBtnsClick : function (id) {
+
+            switch (id) {
+
+                case 'cancel':
+                    this.promptLeave = false;
+
+                    this.removePrompt ();
+                    break;
+                case 'leave':
+                    this.leaveGame();
+                    break;
+                case "playagain":
+
+                    if ( !this.initData.isSinglePlayer ) {
+
+                        socket.emit ('rematchRequest');
+                        
+                        this.removePrompt ();
+                        
+                        this.showPromptSmall ('Waiting for confirmation..');
+    
+                    }else {
+    
+                        this.resetGame ();
+                    }
+
+                    break;
+
+                case "exit":
+
+                    if ( !this.initData.isSinglePlayer ) socket.emit ('leaveGame');
+
+                    this.leaveGame ();
+
+                    break;
+
+            }
+        },
+        controlBtnsClick : function (id) {
+
+
+            switch (id) {
+
+                case 'close':
+
+                    if ( this.promptLeave ) {
+
+                        this.playSound ('error');
+
+
+                    }else {
+
+                        if ( !this.isGameOn ) {
+
+                            this.leaveGame ();
+
+                        }else {
+    
+                            this.showLeavePrompt();
+                        }
+
+                        this.playSound ('clicka');
+
+                    }
+
+                   
+
+                    break;
+                case 'music':
+                    if ( this.bgsound.isPaused ) {
+                        this.bgsound.resume()
+                        
+                    }else{
+                        this.bgsound.pause();
+                    }
+
+                    this.contBtns[2].getAt (1).setFrame ( !this.bgsound.isPaused ? 2 : 5 );
+                        
+                    this.playSound ('clicka');
+                    break;
+                case 'sound':
+                    this.soundOn = !this.soundOn;
+
+                    this.contBtns[1].getAt (1).setFrame ( this.soundOn ? 1 : 4 );
+
+                    this.playSound ('clicka');
+                    break;
+                default:
+            }
+
+           
+
         },
         resetGame : function () {
             
@@ -1383,7 +1501,7 @@ window.onload = function () {
 
             setTimeout(() => {
                 
-                _this.music.play ('clickb', { volume: 0.8})
+                _this.playSound ('clickb', 0.8 )
 
                 _this.createCircle ( deep );
                 
@@ -1399,6 +1517,11 @@ window.onload = function () {
 
             this.scene.start('Intro');
 
+        },
+        playSound : function (snd, vol=0.5) {
+
+            if ( this.soundOn ) this.music.play ( snd, { volume : vol });
+        
         },
         isWinner : function ( turn, pos ) {
 

@@ -606,11 +606,11 @@ function initGame ( roomid ) {
 			'players' : {
 				'self' : {
 					'name' : self.username,
-					'type' : self.type,
+					'clr' : self.index,
 				},
 				'oppo' : {
 					'name' : oppo.username,
-					'type' : oppo.type
+					'clr' : oppo.index
 				}
 			}
 
