@@ -285,28 +285,51 @@ window.onload = function () {
                 strY = 410 * _scale,
                 strS = 260 * _scale;
 
-            var _this = this;
+            var mW = 235 * _scale;
 
             for ( var i = 0; i < 3; i++ ) {
 
-                var menue = this.add.image ( strX + i*(strS), strY + _gameW/2, 'menu_intro', i*2 ).setScale(_scale).setData ('id', i).setInteractive();
 
-                menue.on ('pointerover', function () {
-                    this.setFrame ( (this.getData('id') * 2) + 1 );
+                var miniContainer = this.add.container ( strX + i*(strS), strY + _gameW/2 ).setSize (mW, mW).setData ('id', i).setInteractive();;
+
+                var menue = this.add.image ( 0, 0, 'menu_intro', i ).setScale(_scale);
+
+                miniContainer.add ( menue );
+
+                miniContainer.on ('pointerover', function () {
+
+                    var clr;
+
+                    switch ( this.getData ('id') ) {
+                        case 0 : 
+                            clr = 0x99ff99;
+                        break;
+                        case 1 : 
+                            clr = 0x00ffff;
+                        break;
+                        case 2 : 
+                            clr = 0xffff99;
+                        break;
+                        default :
+                    }
+
+                    this.getAt ( 0 ).setTint ( clr );
                 });
-                menue.on ('pointerout', function () {
-                    this.setFrame ( this.getData('id') * 2 );
+                miniContainer.on ('pointerout', function () {
+                    this.getAt ( 0 ).clearTint ();
                 });
-                menue.on('pointerdown', function () {
+                miniContainer.on('pointerdown', function () {
                     //console.log ('clicked')
-                    _this.music.play ('clicka');
+                    this.scene.music.play ('clicka');
 
-                    _this.menuClick (this.getData('id'));
+                    this.scene.menuClick (this.getData('id'));
                     
                 });
 
+                
+
                 this.tweens.add ({
-                    targets : menue,
+                    targets : miniContainer,
                     y : strY ,
                     duration : 600,
                     easeParams : [1, 0.8],
