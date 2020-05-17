@@ -5,8 +5,6 @@
 -
 */
 
-
-   
 window.onload = function () {
 
     var game, config, socket;
@@ -263,9 +261,7 @@ window.onload = function () {
 
             var title = this.add.image ( _gameW/2, _gameH/2, 'title').setScale(_scale);
 
-            //profile
-
-            
+            //profile   
             var txtConfig = { color:'#000', fontSize:30*_scale, fontFamily:'Oswald'};
 
             this.playerName = this.add.text ( 104*_scale, 28*_scale, username.value, txtConfig ).setOrigin (0);
@@ -278,8 +274,6 @@ window.onload = function () {
             
             this.playersOnlineTxt = this.add.text ( 33*_scale, 110*_scale, 'Player Online : --', txtConfig2 ).setOrigin (0);
             
-
-
             //menu...
             var strX = 380 * _scale,
                 strY = 410 * _scale,
@@ -288,7 +282,6 @@ window.onload = function () {
             var mW = 235 * _scale;
 
             for ( var i = 0; i < 3; i++ ) {
-
 
                 var miniContainer = this.add.container ( strX + i*(strS), strY + _gameW/2 ).setSize (mW, mW).setData ('id', i).setInteractive();;
 
@@ -303,14 +296,13 @@ window.onload = function () {
                     switch ( this.getData ('id') ) {
                         case 0 : 
                             clr = 0x99ff99;
-                        break;
+                            break;
                         case 1 : 
                             clr = 0x00ffff;
-                        break;
+                            break;
                         case 2 : 
                             clr = 0xffff99;
-                        break;
-                        default :
+                            break;
                     }
 
                     this.getAt ( 0 ).setTint ( clr );
@@ -325,8 +317,6 @@ window.onload = function () {
                     this.scene.menuClick (this.getData('id'));
                     
                 });
-
-                
 
                 this.tweens.add ({
                     targets : miniContainer,
@@ -1663,8 +1653,5 @@ window.onload = function () {
         }
         
     });
-
-
-
 
 } 
