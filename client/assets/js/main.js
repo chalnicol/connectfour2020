@@ -1179,6 +1179,7 @@ window.onload = function () {
             this.promptLeave = false;
 
             this.playSound ('move');
+            this.shotCount = 0;
 
             this. makeTurn ( this.turn );
 
@@ -1234,8 +1235,26 @@ window.onload = function () {
             if ( this.isWinner ( this.turn, pos ) ) {
                 this.gameWinner ();
             }else {
-                this.switchTurn ();
+
+                this.shotCount += 1;
+                
+                if ( this.shotCount >= 42) {
+                    this.gameDraw();
+                }else {
+                    this.switchTurn ();
+                }
+                
             } 
+        },
+        gameDraw : function () {
+            
+            this.isGameOn = false;
+
+            this.time.delayedCall ( 500, function () {
+                this.playSound ('warp');
+                this.showDrawPrompt();
+            }, [], this);
+
         },
         gameWinner : function () {
 
@@ -1245,13 +1264,11 @@ window.onload = function () {
 
             this.indicators [this.turn].getByName ('winTxt').text = 'Wins : ' + this.playerArr[this.turn].w;
 
-            var _this = this;
+            this.time.delayedCall ( 500, function () {
+                this.playSound ('warp');
+                this.showWinPrompt();
+            }, [], this);
 
-            setTimeout(() => {
-                _this.playSound ('warp');
-                _this.showWinPrompt ();
-            }, 500 );
-            
         },
         showPromptSmall : function ( txt ) {
 
@@ -1341,6 +1358,15 @@ window.onload = function () {
             });
 
 
+        },
+        showDrawPrompt : function () {
+
+            var btnArr = [
+                {id:'playagain', value: 'Play Again'},
+                {id:'exit', value: 'Exit'},
+            ];
+
+            this.showPrompt ( 'Game is a draw.', btnArr );
         },
         showWinPrompt : function () {
 
@@ -1483,14 +1509,9 @@ window.onload = function () {
 
             this.turn = this.turn == 0 ? 1 : 0;
 
+            this.shotCount = 0;
 
-            var _this = this;
-
-            setTimeout(() => {
-
-                _this.initGame ();
-
-            }, 500 );
+            this.time.delayedCall ( 500, this.initGame, [], this );
             
 
         },

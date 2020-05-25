@@ -84,6 +84,7 @@ GameRoom = function ( id, isTimed=false, blitzTime = 15 ) {
 		isWinner : '',
 		isWinning : '',
 		playerCount : 0,
+		shotCount : 0,
 		isClosed : false,
 		isTimed : isTimed,
 		isTicking : false,
@@ -193,6 +194,8 @@ GameRoom = function ( id, isTimed=false, blitzTime = 15 ) {
 
 		rm.counter = 0;
 		
+		rm.shotCount = 0;
+
 		rm.createGrid ();
 
 		if ( rm.isTimed ) rm.startTimer( rm.prepTime );
@@ -217,6 +220,9 @@ GameRoom = function ( id, isTimed=false, blitzTime = 15 ) {
 
 		//console.log ('Winner : ' + playerList [pid].username );
 
+	}
+	rm.setGameDraw = function () {
+		//console.log ('gameDraw : ' + rm.id );
 	}
 	return rm;
 
@@ -788,16 +794,15 @@ function analyzePlayersMove ( roomid, pos ) {
 	var room = roomList [ roomid ];
 
 	if ( isWinner ( room.turn, roomid, pos ) ) {
-
-		//console.log ('isWinner');
-
 		room.setWinner ();
-
 	}else {
 
-		//console.log ('switchTurn');
-		
-		room.switchTurn ();
+		room.shotCount += 1;
+		if ( room.shotCount >= 42 ) {
+			room.setGameDraw ();
+		}else {
+			room.switchTurn ();
+		}
 	}
 
 }
