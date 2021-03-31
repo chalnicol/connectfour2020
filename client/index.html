@@ -21,10 +21,17 @@
 
 	<script src="/socket.io/socket.io.js"></script>
 
-	<script src="//cdn.jsdelivr.net/npm/phaser@3.21.0/dist/phaser.min.js"></script>
 	
+	<script src="//cdn.jsdelivr.net/npm/phaser@3.23.0/dist/phaser.min.js"></script>
+	
+	<script src="client/assets/js/sceneb.js"></script>
+
+	<script src="client/assets/js/scenea.js"></script>
+
+	<script src="client/assets/js/preloader.js"></script>
+
 	<script src="client/assets/js/main.js"></script>
-	
+
 	<style>
 
 		@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Poppins:wght@300&display=swap');
@@ -37,68 +44,14 @@
 			font-family: 'Poppins', sans-serif;
 		}
 
-		#game_container {
-			display: flex;
-			width: 100%;
-			height: 100%;
-			max-height: 100%;
-			overflow-y: auto;
-		}
-
-		#game_login {
-
-			width:90%;
-			height : auto;
-			max-width: 350px;
-			margin:auto;
-			padding : 15px;
-			border : 1px solid #fff;
-			border-radius: 3px;
-			background-color: #f5f5f5;
-		}
-
-		#game_div {
-			max-width: 1280px;
-			max-height: 720px;
-			margin:auto;
-			background-color : #ccc;
-			display: none;
-		}
-
-		.form-control {
-			border-color : #9c9c9c !important;
-		}
-
 	</style>
 
 </head>
 <body>
 
-	<div id="game_container">
-
-		<div id="game_login">
-
-			<form id="myForm">
-
-				<label for=""><strong>Welcome to Connect Four 2020</strong></label>
-				<div class="form-row">
-					<div class="col-* col-sm-7">
-						<input type="text" id="username" class="form-control mb-2" placeholder="username here" maxlength="15"/>
-					</div>
-					<div class="col-* col-sm-5">
-						<input type="submit" value="Enter Game" class="btn btn-secondary btn-block" id="btnEnter">
-					</div>
-				</div>
-
-				<div id="messageDiv" class="text-danger"></div>
-				
-			</form>
-		</div>
-		<div id="game_div">
-			<!-- insert game here -->
-		</div>
-		
-	</div>
+	
+	<div id="game_div"></div>
+	
 	
 </body>
 </html>
