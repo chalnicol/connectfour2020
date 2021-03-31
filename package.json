@@ -1,7 +1,6 @@
 {
   "name": "connectfour",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "author": "",
   "license": "ISC",
@@ -15,5 +14,14 @@
   "devDependencies": {},
   "scripts": {
     "start": "node app.js"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chalnicol/connectfour2020.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chalnicol/connectfour2020/issues"
+  },
+  "homepage": "https://github.com/chalnicol/connectfour2020#readme",
+  "description": ""
 }
