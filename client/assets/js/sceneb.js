@@ -102,10 +102,7 @@ class SceneB extends Phaser.Scene {
     }
     createGraphics () {
 
-        
         var _this = this;
-
-        
 
         //add background img
         const bg = this.add.image ( this.gameDims.w/2, this.gameDims.h/2, 'bgimage');
@@ -200,18 +197,18 @@ class SceneB extends Phaser.Scene {
 
         //console.log ( this.initData );
 
-        var selfName = this.initData.players.self.name;
+        const selfName = this.initData.players.self.name;
         
-        var oppoName = "";
+        let oppoName = "";
 
-        var isAi = false;
+        let isAi = false;
 
-        var clr0 = 0, clr1 = 1;
+        let clr0 = 0, clr1 = 1;
 
 
         if ( this.initData.isSinglePlayer ) {
 
-            var playerNames = ['Rose™', 'Jack™', 'Mandy™', 'Rei™', 'Mika™', 'Ely™', 'Marlou™', 'Spencer™', 'Denver™' ];
+            const playerNames = ['Rose™', 'Jack™', 'Mandy™', 'Rei™', 'Mika™', 'Ely™', 'Marlou™', 'Spencer™', 'Denver™' ];
 
             oppoName = playerNames [ Math.floor (Math.random() * playerNames.length ) ];
 
@@ -227,44 +224,42 @@ class SceneB extends Phaser.Scene {
             
         }
         
+        //..
         this.playerArr = [
             { 'id' : 'self', 'name' : selfName, 'w' : 0, 'chipClr': clr0, 'ai':false },
             { 'id' : 'oppo', 'name' : oppoName, 'w' : 0, 'chipClr': clr1, 'ai':isAi }
         ];
         
-        //..
+        
     }
     createIndicators () {
 
-        
-        
         this.indicators = [];
 
-        var sW = 350,
-            sH = 80,
-            sS = sW * 0.02, 
-            sX = (this.gameDims.w - (2 * ( sW + sS ) - sS) )/2,
-            sY = 5;
+        const sW = 350,
+              sH = 80,
+              sS = sW * 0.02, 
+              sX = (this.gameDims.w - (2 * ( sW + sS ) - sS) )/2,
+              sY = 5;
 
-        var txtConfig = { fontFamily: 'Poppins', color: '#f3f3f3', fontSize : sH * 0.25 };
-
+        const txtConfig = { fontFamily: 'Poppins', color: '#f3f3f3', fontSize : sH * 0.25 };
 
         for ( var i = 0; i < 2; i++ ) {
 
-            var xp = sX + i * (sW+sS),
+            let xp = sX + i * (sW+sS),
                 yp = sY;
 
-            var miniContainer = this.add.container (xp, yp).setName ( this.playerArr[i].id );
+            let miniContainer = this.add.container (xp, yp).setName ( this.playerArr[i].id );
 
-            var indBG = this.add.image (0, 0, 'indicator_bg').setOrigin (0);
+            let indBG = this.add.image (0, 0, 'indicator_bg').setOrigin (0);
 
-            var turn_ind = this.add.image ( sW * 0.12, sH/2, 'indicator_turn', ).setName('turnInd');;
+            let turn_ind = this.add.image ( sW * 0.12, sH/2, 'indicator_turn', ).setName('turnInd');;
 
-            var name_txt = this.add.text ( sW * 0.21, sH/2, this.playerArr[i].name, txtConfig ).setOrigin(0, 0.5).setName('nameTxt');
+            let name_txt = this.add.text ( sW * 0.21, sH/2, this.playerArr[i].name, txtConfig ).setOrigin(0, 0.5).setName('nameTxt');
+    
+            let win_txt = this.add.text ( sW * 0.92, sH * 0.18, 'Wins : 0', txtConfig ).setFontSize( sH*0.22 ).setOrigin(1, 0).setName('winTxt');
         
-            var win_txt = this.add.text ( sW * 0.92, sH * 0.18, 'Wins : 0', txtConfig ).setFontSize( sH*0.22 ).setOrigin(1, 0).setName('winTxt');
-            
-            var tim_txt = this.add.text ( sW * 0.92, sH * 0.6, '_', txtConfig ).setFontSize( sH*0.22 ).setOrigin(1, 0).setName('timeTxt');
+            let tim_txt = this.add.text ( sW * 0.92, sH * 0.6, '_', txtConfig ).setFontSize( sH*0.22 ).setOrigin(1, 0).setName('timeTxt');
 
           
             miniContainer.add ([ indBG, turn_ind, name_txt, tim_txt, win_txt ]);
@@ -273,9 +268,6 @@ class SceneB extends Phaser.Scene {
 
         }
         
-
-
-
     }
     createControls () {
 
@@ -283,19 +275,19 @@ class SceneB extends Phaser.Scene {
 
         this.contBtns = [];
 
-        var bh = 70, 
-            bs = bh * 0.08,
-            bx = 1052,
-            by = 135;
+        const bh = 70, 
+              bs = bh * 0.08,
+              bx = 1052,
+              by = 135;
 
-        var buts = ['close', 'sound', 'music' ];
+        const buts = ['close', 'sound', 'music' ];
 
         for ( var i in buts ) {
             
 
-            var miniContainer = this.add.container (bx + (300), by + i * ( bh + bs) );
+            let miniContainer = this.add.container (bx + (300), by + i * ( bh + bs) );
 
-            var img = this.add.image ( 0, 0, 'cntrl_btns', 0 ).setData ('id', buts[i] ).setInteractive();
+            let img = this.add.image ( 0, 0, 'cntrl_btns', 0 ).setData ('id', buts[i] ).setInteractive();
             
             img.on('pointerover', function () {
                 this.setFrame (1);
@@ -307,11 +299,10 @@ class SceneB extends Phaser.Scene {
                 this.setFrame (0);
             });
             img.on('pointerdown', function () {
-                //console.log ( this.getData ('id') );
                 _this.controlBtnsClick ( this.getData('id') );
             });
             
-            var emb = this.add.image ( 0, 0, 'thumbs', i );
+            let emb = this.add.image ( 0, 0, 'thumbs', i );
 
             miniContainer.add ([img, emb]);
 
@@ -339,8 +330,6 @@ class SceneB extends Phaser.Scene {
         this.shape.fillRect ( 263, 100, 755, 616 );
 
         this.masker = this.shape.createGeometryMask();
-
-        
 
     }
     createCircle ( deep ) {
@@ -624,7 +613,6 @@ class SceneB extends Phaser.Scene {
                 }
 
                 break;
-
             case "exit":
 
                 if ( !this.initData.isSinglePlayer ) socket.emit ('leaveGame');

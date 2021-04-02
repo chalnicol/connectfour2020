@@ -23,7 +23,7 @@ class Preloader extends Phaser.Scene {
         let rct = this.add.rectangle ( (_gW - rW)/2, _gH/2, 5, rH, 0x6a6a6a, 1 ).setOrigin(0, 0.5);
 
         this.load.on ('complete', function () {
-            this.scene.start('SceneA');
+            this.scene.start('Login');
         }, this);
 
         this.load.on ('progress', function (progress) {

@@ -13,7 +13,7 @@ window.onload = function () {
             height: 720
         },
         backgroundColor: '#cacaca',
-        scene: [ Preloader, SceneA, SceneB ]
+        scene: [ Preloader, Login, SceneA, SceneB ]
     };
 
     new Phaser.Game(config);

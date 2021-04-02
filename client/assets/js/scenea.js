@@ -4,6 +4,10 @@ class SceneA extends Phaser.Scene {
     {
         super('SceneA');
     }
+
+    init ( data) {
+        this.username = data.username;
+    }
     preload ()
     {
     }
@@ -106,11 +110,11 @@ class SceneA extends Phaser.Scene {
         const title = this.add.image ( this.gameDims.w/2, this.gameDims.h/2, 'title');
 
         //profile   
-        const username = "Player" + Math.floor ( Math.random() * 999999 );
+        //const username = "Player" + Math.floor ( Math.random() * 999999 );
 
         const txtConfig = { color:'#000', fontSize:30, fontFamily:'Oswald'};
 
-        this.playerName = this.add.text ( 104, 28, username, txtConfig ).setOrigin (0);
+        this.playerName = this.add.text ( 104, 28, this.username, txtConfig ).setOrigin (0);
 
         const txtConfig1 = { color:'#7d7d7d', fontSize:20, fontFamily:'Oswald'};
 
