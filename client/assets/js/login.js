@@ -8,15 +8,20 @@ class Login extends Phaser.Scene {
     create () 
     {
 
+        
+
         let _this = this;
 
+        const bg = this.add.image ( 640, 360, 'bgimage');
+
         //let username = "player" + Math.floor (Math.random() * 99999);
+        this.add.image ( 640, 120, 'eprofile').setScale (0.4);
 
-        this.add.text ( 640, 100, 'Please input your username ( 6-10 characters )', { color:'#3a3a3a', fontSize: 20, fontFamily: 'Oswald'} ).setOrigin(0.5);
+        this.add.text ( 640, 200, 'Please input your username ( 6-15 characters )', { color:'#3a3a3a', fontSize: 20, fontFamily: 'Oswald'} ).setOrigin(0.5);
 
-        this.add.rectangle ( 640, 160, 500, 55, 0xffffff, 1 ).setStrokeStyle ( 1, 0x0a0a0a );
+        this.add.rectangle ( 640, 260, 500, 55, 0xffffff, 1 ).setStrokeStyle ( 1, 0x0a0a0a );
 
-        let usertxt = this.add.text ( 640, 160, 'username here' , { color:'#6a6a6a', fontSize: 30, fontFamily: 'Oswald'}  ).setOrigin(0.5);
+        let usertxt = this.add.text ( 640, 260, 'username here' , { color:'#6a6a6a', fontSize: 30, fontFamily: 'Oswald'}  ).setOrigin(0.5);
         
         let usertmp = '';
 
@@ -35,7 +40,7 @@ class Login extends Phaser.Scene {
 
             let ix = Math.floor ( i/10 ), iy = i%10;
 
-            let xp = (iy * ( bw + bs) ) + bsx, yp = (ix * (bh + bs )) + 220;
+            let xp = (iy * ( bw + bs) ) + bsx, yp = (ix * (bh + bs )) + 320;
 
             let miniCont = this.add.container ( xp, yp ).setData ( 'id', i ).setSize(bw, bh).setInteractive();
 
@@ -85,7 +90,7 @@ class Login extends Phaser.Scene {
               
         for ( var i = 0; i < 3; i++ ) {
             
-            let cnt = this.add.container ( bcsx + i*( bcw + bs), 430).setSize ( bcw, bch ).setData('id', i ).setInteractive();
+            let cnt = this.add.container ( bcsx + i*( bcw + bs), 530).setSize ( bcw, bch ).setData('id', i ).setInteractive();
 
             let rcta = this.add.rectangle ( 0, 0, bcw, bch, 0xffffff, 1 ).setStrokeStyle ( 1, 0x0a0a0a );
 
@@ -113,16 +118,22 @@ class Login extends Phaser.Scene {
 
                 switch (this.getData('id')) {
                     case 0:
+
                         if ( usertmp.length > 0) {
+
                             usertmp = usertmp.slice ( 0, -1 );
                            
                             usertxt.text =  ( usertmp.length == 0 ) ? 'username here' : usertmp;
                            
                         }
+
                         break;
                     case 1:
+
                         if ( usertmp.length > 0) {
+
                             usertmp ='';
+
                             usertxt.text = 'username here';
                         }
         
@@ -130,6 +141,10 @@ class Login extends Phaser.Scene {
                     case 2:
 
                         if ( usertmp.length >= 6 ) {
+                            
+                            socket = io();
+
+                            socket.emit ('initUser', usertmp  );
                             
                             _this.scene.start ('SceneA', { 'username' : usertmp });
 

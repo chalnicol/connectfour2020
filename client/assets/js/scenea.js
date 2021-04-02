@@ -13,7 +13,7 @@ class SceneA extends Phaser.Scene {
     }
     create () {
 
-        socket = io();
+        
 
         this.gameDims = {
             w : this.game.config.width,
@@ -28,7 +28,7 @@ class SceneA extends Phaser.Scene {
 
         this.initInterface ();
         
-        socket.emit ('initUser', 'chalnicol' );
+       
 
         socket.emit ('getInitData');
         

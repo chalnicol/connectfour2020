@@ -16,11 +16,11 @@ class Preloader extends Phaser.Scene {
         let txt = this.add.text (_gW/2, _gH*0.43, 'Loading : 0%', { color:'#333', fontFamily:'Oswald', fontSize:20 }).setOrigin(0.5);
 
         //..
-        let brct = this.add.rectangle ( (_gW - 350 )/2, _gH/2, 350, 40 ).setStrokeStyle (3, 0x0a0a0a).setOrigin(0, 0.5);
+        let brct = this.add.rectangle ( (_gW - 350 )/2, _gH/2, 350, 40 ).setStrokeStyle (2, 0x0a0a0a).setOrigin(0, 0.5);
         //..
         let rW = 340, rH = 30;
 
-        let rct = this.add.rectangle ( (_gW - rW)/2, _gH/2, 5, rH, 0x6a6a6a, 1 ).setOrigin(0, 0.5);
+        let rct = this.add.rectangle ( (_gW - rW)/2, _gH/2, 5, rH, 0x3a3a3a, 1 ).setOrigin(0, 0.5);
 
         this.load.on ('complete', function () {
             this.scene.start('Login');
@@ -44,6 +44,10 @@ class Preloader extends Phaser.Scene {
         this.load.audio ('bgsound', [ 'client/assets/sfx/bgsound2.ogg', 'client/assets/sfx/bgsound2.mp3'] );
 
         this.load.image ('bgimage', 'client/assets/images/bg.png');
+
+
+        this.load.image ('eprofile', 'client/assets/images/username/eprofile.png');
+
 
         //intro..
         this.load.image ('title', 'client/assets/images/intro/title.png');
