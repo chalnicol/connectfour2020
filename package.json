@@ -5,13 +5,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1",
-    "socket.io": "^2.4.1"
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
   },
   "engines": {
     "node": "^12.1.0"
   },
-  "devDependencies": {},
   "scripts": {
     "start": "node app.js"
   },
